@@ -1,0 +1,13 @@
+﻿<p>
+    <h1>Course Mover</h1>
+    <a href="https://ucdenver.instructure.com">https://ucdenver.instructure.com</a>
+</p>
+<p>
+    The Course Mover is an app that will take a CSV list of Courses and move them to the specified account.
+</p>
+@using (Html.BeginForm("ExternalLogout", "Home", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <button type="submit" id="LogOutLink", class="float-right">Log Out</button>
+}
+<hr />
