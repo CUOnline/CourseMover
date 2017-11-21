@@ -2,6 +2,8 @@
     padding-top: 50px;
     padding-bottom: 20px;
     background-color: #565A5C;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-weight: 300;
 }
 
 /* Set padding to keep content from hitting the edges */
@@ -31,6 +33,7 @@ textarea {
 .panel {
     padding-left: 15px;
     padding-right: 15px;
+    padding-bottom: 15px;
 }
 
 .control-label {
@@ -39,4 +42,26 @@ textarea {
 
 .float-right {
     float: right;
+}
+
+.linkButton {
+    background: none !important;
+    color: inherit;
+    border: none;
+    padding: 0 !important;
+    font: inherit;
+    cursor: pointer;
+}
+
+#box-content {
+    background-color: #FFF;
+    padding: 24px;
+}
+
+#modal-box {
+    border-radius: 3px;
+    box-shadow: 0 1px 4px 1px rgba(0,0,0,0.4);
+    box-sizing: border-box;
+    margin: 36px auto 0;
+    width: 696px;
 }

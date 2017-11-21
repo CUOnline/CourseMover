@@ -13,15 +13,15 @@ namespace Canvas.Clients
             ApiController = apiController;
         }
 
-        public async Task<IEnumerable<T>> GetAll<T>()
-        {
-            return await ExecuteGet<IEnumerable<T>>(ApiController);
-        }
-
         public async Task<T> Get<T>(string modelId)
         {
             ApiPath = ApiController + "/" + modelId;
             return await ExecuteGet<T>(ApiPath);
+        }
+
+        public async Task<IEnumerable<T>> GetAll<T>()
+        {
+            return await ExecuteGet<IEnumerable<T>>(ApiController);
         }
     }
 }

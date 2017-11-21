@@ -220,6 +220,7 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Home\_CourseMover.cshtml" />
     <Content Include="Views\Home\_IndexHeader.cshtml" />
+    <Content Include="Views\Home\LoggedOut.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

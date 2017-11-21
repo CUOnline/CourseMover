@@ -31,15 +31,29 @@ namespace Canvas.Clients
             return httpClient;
         }
 
-        protected async Task<T> ExecuteGet<T>(string apiPath)
-        {
-            var response = await Client().GetStringAsync(baseUrl + "/" + apiPath);
-            return JsonConvert.DeserializeObject<T>(response);
-        }
-
         protected async Task<string> ExecuteGet(string apiPath)
         {
-            return await Client().GetStringAsync(baseUrl + "/" + apiPath);
+            var response = await Client().GetAsync(baseUrl + "/" + apiPath);
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsStringAsync();
+            }
+
+            var errMsg = String.Format("Failed to call the API. HTTP Status: {0}, Reason {1}", response.StatusCode, response.ReasonPhrase);
+            throw new Exception(errMsg);
+        }
+
+        protected async Task<T> ExecuteGet<T>(string apiPath)
+        {
+            var response = await Client().GetAsync(baseUrl + "/" + apiPath);
+            if (response.IsSuccessStatusCode)
+            {
+                var responseString = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<T>(responseString);
+            }
+
+            var errMsg = String.Format("Failed to call the API. HTTP Status: {0}, Reason {1}", response.StatusCode, response.ReasonPhrase);
+            throw new Exception(errMsg);
         }
 
         protected async Task<List<T>> ExecuteGetAll<T>(string apiPath)
@@ -49,6 +63,13 @@ namespace Canvas.Clients
             do
             {
                 var response = string.IsNullOrWhiteSpace(nextLink) ? await Client().GetAsync(baseUrl + "/" + apiPath) : await Client().GetAsync(nextLink);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errMsg = String.Format("Failed to call the API. HTTP Status: {0}, Reason {1}", response.StatusCode, response.ReasonPhrase);
+                    throw new Exception(errMsg);
+                }
+
                 nextLink = GetNextLink(response);
                 collection.AddRange(JsonConvert.DeserializeObject<List<T>>(await response.Content.ReadAsStringAsync()));
             }

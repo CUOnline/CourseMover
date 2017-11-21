@@ -13,6 +13,7 @@ using Canvas.Clients.Models;
 using Microsoft.Owin.Security;
 using CourseMover.Models;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace CourseMover.Controllers
 {
@@ -51,45 +52,48 @@ namespace CourseMover.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Check for bad CSV
-
                 var courseIds = new List<string>();
                 using (var reader = new StreamReader(Request.Files["CoursesDataFile"].InputStream))
                 {
                     while (!reader.EndOfStream)
                     {
                         var line = await reader.ReadLineAsync();
-                        courseIds.Add(line.Split(',')[0]);
+                        Regex validator = new Regex(@"^[0-9]+$");
+
+                        var id = line.Split(',')[0];
+
+                        if(!validator.IsMatch(id))
+                        { 
+                            ModelState.AddModelError(nameof(HomeViewModel.CoursesDataFile), "There was a problem while reading the input file.  Please make sure that the file chosen contains a comma delimited list and has an extension of csv.");
+                            return View(viewModel);
+                        }
+
+                        courseIds.Add(id);
                     }
                 }
 
                 var client = new CoursesClient();
+                var accountClient = new AccountsClient();
 
-                foreach (var id in courseIds)
+                try
                 {
-                    await client.MoveCourse(id, viewModel.CanvasAccountId);
+                    var account = accountClient.Get<Account>(viewModel.CanvasAccountId);
+
+                    foreach (var id in courseIds)
+                    {
+                        await client.MoveCourse(id, viewModel.CanvasAccountId);
+                    }
                 }
-            }
-
-            if (!(await Authorized(ConfigurationManager.AppSettings["CanvasAccountId"])))
-            {
-                // return unauthorized view
-                var model = new HomeViewModel()
+                catch (Exception ex)
                 {
-                    Authorized = false
-                };
-                return View(model);
-            }
-            else
-            {
-                var model = new HomeViewModel()
-                {
-                    Authorized = true,
-                    Notify = true
-                };
+                    ModelState.AddModelError(nameof(viewModel.CanvasAccountId), ex);
+                    return View(viewModel);
+                }
 
-                return View(model);
+                viewModel.Notify = true;
             }
+            
+            return View(viewModel);
         }
 
 
@@ -114,7 +118,12 @@ namespace CourseMover.Controllers
             var authenticationManager = HttpContext.GetOwinContext().Authentication;
             authenticationManager.SignOut("ExternalCookie");
 
-            return RedirectToAction("Index");
+            return RedirectToAction("LoggedOut");
+        }
+
+        public ActionResult LoggedOut()
+        {
+            return View();
         }
 
         private async Task<bool> Authorized(string accountId)
@@ -129,18 +138,25 @@ namespace CourseMover.Controllers
             {
                 ViewBag.authenticated = true;
                 AccountsClient client = new AccountsClient();
-                var userId = authenticateResult.Identity.Claims.Where(cl => cl.Type == ClaimTypes.NameIdentifier).FirstOrDefault().Value;
-
-                var roles = (await client.GetAccountRolesForUserAsync(accountId, userId)).Where(x => x.WorkflowState == WorkflowState.Active);
-
-                if (roles.Select(x => x.Name).Intersect(authorizedRoles).Any())
+                try
                 {
-                    return true;
+                    var userId = authenticateResult.Identity.Claims.Where(cl => cl.Type == ClaimTypes.NameIdentifier).FirstOrDefault().Value;
+
+                    var roles = (await client.GetAccountRolesForUserAsync(accountId, userId)).Where(x => x.WorkflowState == WorkflowState.Active);
+
+                    if (roles.Select(x => x.Name).Intersect(authorizedRoles).Any())
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        var account = await client.Get<Account>(accountId);
+                        ViewBag.error = $"You do not have the proper roles assigned to access information for {account.Name}";
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    var account = await client.Get<Account>(accountId);
-                    ViewBag.error = $"You do not have the proper roles assigned to access information for {account.Name}";
+                    ViewBag.error = ex.Message;
                 }
             }
 

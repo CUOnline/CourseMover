@@ -20,19 +20,23 @@
                         {
                             @Html.AntiForgeryToken()
                             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                            @Html.HiddenFor(x => x.Authorized)
 
-                            <div class="form-group input-group">
-                                @Html.LabelFor(m => m.CanvasAccountId, new { @class = "control-label" })
-                                @Html.EditorFor(m => m.CanvasAccountId, new { @class = "form-control" })
+                            <div class="input-group">
+                                @Html.LabelFor(m => m.CanvasAccountId, new { @class = "control-label" }) <br />
+                                @Html.EditorFor(m => m.CanvasAccountId, new { @class = "form-control" }) <br />
+                                @Html.ValidationMessageFor(model => model.CanvasAccountId, "", new { @class = "text-danger" })
                             </div>
 
-                            <div class="form-group input-group">
+                            <div class="input-group">
                                 @Html.LabelFor(m => m.CoursesDataFile, new { @class = "control-label" })
                                 @Html.TextBoxFor(m => m.CoursesDataFile, new { type = "file", name = "CoursesCSV", @class = "form-control" })
+                                @Html.ValidationMessageFor(model => model.CoursesDataFile, "", new { @class = "text-danger" })
                             </div>
+                            <br />
 
-                            <div class="form-group">
-                                <button type="submit" class="btn btn-default">Submit</button>
+                            <div>
+                                <button type="submit" class="btn btn-primary">Submit</button>
                             </div>
                         }
                     </section>

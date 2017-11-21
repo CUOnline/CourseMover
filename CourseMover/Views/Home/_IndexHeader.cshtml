@@ -4,10 +4,24 @@
 </p>
 <p>
     The Course Mover is an app that will take a CSV list of Courses and move them to the specified account.
+    <br />
+    The input CSV should have a list of courses where the first line of each entry has a CourseId.  
+    <br /><br />
+    An example is shown below.
 </p>
+<figure class="highlight">
+    <pre>
+<code>369501, IWKS 5970 901, 2171_205916_41108, Independent Study 901
+375261, IWKS 5100 001, 2174_205679_19248, Human Centered Design 001
+375262, IWKS 2100 001, 2174_205892_19247, Human Centered Design 2100/5100 001
+375879, IWKS 3100 001, 2174_205895_19426, 3D Design and Prototyping 001
+376055, IWKS 4930 M01, 2174_205841_19456, Special Topics M01
+376056, IWKS 5930 M01, 2174_205843_19457, Special Topics M01</code>
+        </pre>
+</figure>
 @using (Html.BeginForm("ExternalLogout", "Home", FormMethod.Post))
 {
     @Html.AntiForgeryToken()
-    <button type="submit" id="LogOutLink", class="float-right">Log Out</button>
+    <button type="submit" id="LogOutLink", class="linkButton float-right">Log Out</button>
 }
 <hr />
